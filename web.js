@@ -5,7 +5,7 @@ var express = require('express');
 var app = express.createServer(express.logger());
 
 app.get('/', function(request, response) {
-  response.sendfile(_dirname + "/index.html");
+  response.sendfile(__dirname + "/index.html");
 });
 
 var port = process.env.PORT || 5000;
