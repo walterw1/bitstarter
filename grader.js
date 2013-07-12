@@ -56,19 +56,22 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
+var checkURLstr = function(htmlfile, checksfile) {
+    $ = (cheerio.load);
+    var checks = loadChecks(checksfile).sort();
+    var out = {};
+    for(var ii in checks) {
+        var present = $(checks[ii]).length > 0;
+        out[checks[ii]] = present;
+    }
+    return out;
+};
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
     return fn.bind({});
 };
-var callBack = function(urlDate) {
-if (data instanceof Error) {
-    sys.puts('Error: ' + urlData.message);
-    this.retry(5000); // try again after 5 sec
-  } else {
-    sys.puts(urlData);
-  }
-};
+
 
 if(require.main == module) {
     program
@@ -79,15 +82,24 @@ if(require.main == module) {
 	.option('-u, --url <url_file>', 'Path to url')
         .parse(process.argv);
     if (program.url){
-       rest.get(program.url).on('complete', function(urlData));
-      var checkJson = checkHtmlFile(urlData, program.checks);
-      var outJson = JSON.stringify(checkJson, null, 4);
+       rest.get(program.url).on('complete', function(result){
+         if (result instanceof Error) {
+    		sys.puts('Error: ' + result.message);
+    		this.retry(5000); // try again after 5 sec
+  	 } else {
+    		sys.puts(result);
+                var checkJson = checkURLstr(result, program.checks);
+      		var outJson = JSON.stringify(checkJson, null, 4);
+     		 console.log(outJson);
+  	 }
+	});
+      
     } else {
        var checkJson = checkHtmlFile(urlData, program.checks);
       var outJson = JSON.stringify(checkJson, null, 4);
-    }
+   	console.log(outJson);
+ }
 
-    console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
